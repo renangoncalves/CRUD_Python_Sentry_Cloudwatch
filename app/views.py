@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from app.forms import CarrosForm
 from app.models import Carros
+from app.CloudWatch import put_log_event
 import os
 
 sentry_sdk.init(
@@ -39,8 +40,20 @@ def form(request):
 def create(request):
     form = CarrosForm(request.POST or None)
     if form.is_valid():
-        form.save()
-        return redirect('home')
+        carros_instance = form.save(commit=False)
+        carros_instance.save()
+
+        # Chame a função para enviar os dados para o CloudWatch
+        data = {
+            # 'timestamp': carros_instance.timestamp,
+            'acao': 'CREATE',
+            'modelo': carros_instance.modelo,
+            'ano': carros_instance.ano,
+            'marca': carros_instance.marca,
+        }
+        put_log_event(data)
+
+    return redirect('home')
 
 def view(request, pk):
     data = {}
@@ -60,8 +73,22 @@ def update(request, pk):
     data['db'] = Carros.objects.get(pk=pk)
     form = CarrosForm(request.POST or None, instance=data['db'])
     if form.is_valid():
-        form.save()
-        return redirect('home')
+        # form.save()
+        carros_instance = form.save(commit=False)
+        carros_instance.save()
+
+        # Chame a função para enviar os dados para o CloudWatch
+        data = {
+            # 'timestamp': carros_instance.timestamp,
+            'acao': 'UPDATE',
+            'modelo': carros_instance.modelo,
+            'ano': carros_instance.ano,
+            'marca': carros_instance.marca,
+        }
+        put_log_event(data)
+
+
+    return redirect('home')
 
 
 def delete(request, pk):

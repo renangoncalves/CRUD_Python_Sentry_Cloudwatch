@@ -1,2 +1,3 @@
 Django
 sentry-sdk
+boto3
