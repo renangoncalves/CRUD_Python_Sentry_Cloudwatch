@@ -42,18 +42,9 @@ def create(request):
     if form.is_valid():
         carros_instance = form.save(commit=False)
         carros_instance.save()
-
-        # Chame a função para enviar os dados para o CloudWatch
-        data = {
-            # 'timestamp': carros_instance.timestamp,
-            'acao': 'CREATE',
-            'modelo': carros_instance.modelo,
-            'ano': carros_instance.ano,
-            'marca': carros_instance.marca,
-        }
-        put_log_event(data)
-
+        put_log_event(carros_instance, 'CREATE')
     return redirect('home')
+
 
 def view(request, pk):
     data = {}
@@ -76,32 +67,13 @@ def update(request, pk):
         # form.save()
         carros_instance = form.save(commit=False)
         carros_instance.save()
-
-        # Chame a função para enviar os dados para o CloudWatch
-        data = {
-            # 'timestamp': carros_instance.timestamp,
-            'acao': 'UPDATE',
-            'modelo': carros_instance.modelo,
-            'ano': carros_instance.ano,
-            'marca': carros_instance.marca,
-        }
-        put_log_event(data)
-
-
+        put_log_event(carros_instance, 'UPDATE')
     return redirect('home')
 
 
 def delete(request, pk):
     db = Carros.objects.get(pk=pk)
     db.delete()
-
-    data = {
-        'acao': 'DELETE',
-        'modelo': db.modelo,
-        'ano': db.ano,
-        'marca': db.marca,
-    }
-    put_log_event(data)
-
+    put_log_event(db, 'DELETE')
     return redirect('home')
 

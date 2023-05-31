@@ -15,9 +15,17 @@ sentry_sdk.init(
     traces_sample_rate=1.0
 )
 # def put_log_event(log_group_name, log_stream_name, log_message):
-def put_log_event(data):
+def put_log_event(data, acao):
     # Cria uma instância do cliente do CloudWatch Logs
     client = boto3.client('logs', region_name=region_name)  # Substitua 'us-east-1' pela região desejada
+
+    data = {
+        'acao': acao,
+        'pk': data.pk,
+        'modelo': data.modelo,
+        'marca': data.marca,
+        'ano': data.ano,
+    }
     log_data = json.dumps(data)
 
     # Cria um evento de log
