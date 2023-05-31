@@ -25,7 +25,7 @@ def home(request):
     else:
         data['db'] = Carros.objects.all()
     all = Carros.objects.all()
-    paginator = Paginator(all, 2)
+    paginator = Paginator(all, 10)
     pages = request.GET.get('page')
     data['db'] = paginator.get_page(pages)
     return render(request, 'index.html', data)
@@ -94,5 +94,14 @@ def update(request, pk):
 def delete(request, pk):
     db = Carros.objects.get(pk=pk)
     db.delete()
+
+    data = {
+        'acao': 'DELETE',
+        'modelo': db.modelo,
+        'ano': db.ano,
+        'marca': db.marca,
+    }
+    put_log_event(data)
+
     return redirect('home')
 
